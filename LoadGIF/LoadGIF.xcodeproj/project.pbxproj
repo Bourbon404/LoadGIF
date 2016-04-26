@@ -17,6 +17,8 @@
 		6252DB371CCF338200BAC5A9 /* 1.gif in Resources */ = {isa = PBXBuildFile; fileRef = 6252DB361CCF338200BAC5A9 /* 1.gif */; };
 		6252DB391CCF35D700BAC5A9 /* 2.gif in Resources */ = {isa = PBXBuildFile; fileRef = 6252DB381CCF35D700BAC5A9 /* 2.gif */; };
 		628E88681CCF413300932A5D /* CGImageGIFView.m in Sources */ = {isa = PBXBuildFile; fileRef = 628E88671CCF413300932A5D /* CGImageGIFView.m */; };
+		62901BEB1CCF6D6800422753 /* CADisplayLineImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 62901BEA1CCF6D6800422753 /* CADisplayLineImage.m */; };
+		62901BEE1CCF6D7D00422753 /* CADisplayLineImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 62901BED1CCF6D7D00422753 /* CADisplayLineImageView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +38,10 @@
 		6252DB381CCF35D700BAC5A9 /* 2.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = 2.gif; sourceTree = "<group>"; };
 		628E88661CCF413300932A5D /* CGImageGIFView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGImageGIFView.h; sourceTree = "<group>"; };
 		628E88671CCF413300932A5D /* CGImageGIFView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CGImageGIFView.m; sourceTree = "<group>"; };
+		62901BE91CCF6D6800422753 /* CADisplayLineImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CADisplayLineImage.h; sourceTree = "<group>"; };
+		62901BEA1CCF6D6800422753 /* CADisplayLineImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CADisplayLineImage.m; sourceTree = "<group>"; };
+		62901BEC1CCF6D7D00422753 /* CADisplayLineImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CADisplayLineImageView.h; sourceTree = "<group>"; };
+		62901BED1CCF6D7D00422753 /* CADisplayLineImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CADisplayLineImageView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +84,10 @@
 				628E88671CCF413300932A5D /* CGImageGIFView.m */,
 				624512A01CCF526400B4AE6B /* CAKeyframeAnimationGIFView.h */,
 				624512A11CCF526400B4AE6B /* CAKeyframeAnimationGIFView.m */,
+				62901BE91CCF6D6800422753 /* CADisplayLineImage.h */,
+				62901BEA1CCF6D6800422753 /* CADisplayLineImage.m */,
+				62901BEC1CCF6D7D00422753 /* CADisplayLineImageView.h */,
+				62901BED1CCF6D7D00422753 /* CADisplayLineImageView.m */,
 				6252DB281CCF337800BAC5A9 /* Main.storyboard */,
 				6252DB2B1CCF337800BAC5A9 /* Assets.xcassets */,
 				6252DB2D1CCF337800BAC5A9 /* LaunchScreen.storyboard */,
@@ -167,6 +177,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				62901BEE1CCF6D7D00422753 /* CADisplayLineImageView.m in Sources */,
+				62901BEB1CCF6D6800422753 /* CADisplayLineImage.m in Sources */,
 				6252DB271CCF337800BAC5A9 /* ViewController.m in Sources */,
 				628E88681CCF413300932A5D /* CGImageGIFView.m in Sources */,
 				6252DB241CCF337800BAC5A9 /* AppDelegate.m in Sources */,

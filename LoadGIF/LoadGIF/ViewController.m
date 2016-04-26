@@ -9,6 +9,7 @@
 #import "ViewController.h"
 #import "CGImageGIFView.h"
 #import "CAKeyframeAnimationGIFView.h"
+#import "CADisplayLineImageView.h"
 @interface ViewController ()
 {
     CGImageGIFView *gifView;
@@ -68,5 +69,13 @@
     otherGifView = [[CAKeyframeAnimationGIFView alloc] initWithCAKeyframeAnimationWithPath:path];
     otherGifView.center = self.view.center;
     [self.view addSubview:otherGifView];
+}
+-(void)loadCADisplayLineImageView
+{
+    CADisplayLineImageView *imageView = [[CADisplayLineImageView alloc] initWithFrame:CGRectMake(0, 0, 350*2, 393)];
+    [imageView setCenter:self.view.center];
+    [self.view addSubview:imageView];
+    [imageView setImage:[CADisplayLineImage imageNamed:@"1.gif"]];
+    
 }
 @end
