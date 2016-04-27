@@ -63,7 +63,7 @@ const NSTimeInterval kMaxTimeStep = 1;
         [self.displayLink addToRunLoop:runloop forMode:runLoopMode];
         
         _runLoopMode = runLoopMode;
-//        [self startAnimating];
+        [self startAnimating];
     }
 }
 -(void)setImage:(UIImage *)image
@@ -87,7 +87,7 @@ const NSTimeInterval kMaxTimeStep = 1;
         self.currentFrame = nil;
         self.animatedImage = (CADisplayLineImage *)image;
         self.loopCountdown = self.animatedImage.loopCount ? : NSUIntegerMax;
-//        [self startAnimating];
+        [self startAnimating];
         
     }else{
         self.animatedImage = nil;
@@ -109,6 +109,7 @@ const NSTimeInterval kMaxTimeStep = 1;
 }
 -(void)stopAnimating
 {
+    //如果不是gif就返回父类方法
     if (!self.animatedImage) {
         [super stopAnimating];
         return;
@@ -162,7 +163,7 @@ const NSTimeInterval kMaxTimeStep = 1;
 {
     [super didMoveToWindow];
     if (self.window) {
-//        [self startAnimating];
+        [self startAnimating];
     }else{
         dispatch_async(dispatch_get_main_queue(), ^{
             if (!self.window) {
