@@ -28,22 +28,6 @@
 }
 -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-//    if (gifView.isAnimating) {
-//        [gifView stopGIF];
-//    }else{
-//        [gifView startGIF];
-//    }
-    
-//    if (otherGifView.isAnimating) {
-//        [otherGifView stopGIF];
-//    }else{
-//        [otherGifView startGIF];
-//    }
-    if (displayImageView.isAnimating) {
-        [displayImageView stopAnimating];
-    }else{
-        [displayImageView startAnimating];
-    }
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -55,7 +39,7 @@
     [webView setCenter:self.view.center];
     NSData *gif = [NSData dataWithContentsOfFile: [[NSBundle mainBundle] pathForResource:@"2" ofType:@"gif"]];
     webView.userInteractionEnabled = NO;
-    [webView loadData:gif MIMEType:@"image/gif" textEncodingName:nil baseURL:nil];
+    [webView loadData:gif MIMEType:@"image/gif" textEncodingName:@"UTF-8" baseURL:nil];
     //设置webview背景透明，能看到gif的透明层
     webView.backgroundColor = [UIColor blackColor];
     webView.opaque = NO;
@@ -68,6 +52,7 @@
     gifView = [[CGImageGIFView alloc] initWithGIFPath:path];
     [gifView setCenter:self.view.center];
     [self.view addSubview:gifView];
+    [gifView startGIF];
 }
 -(void)loadCAKeyframeAnimation
 {
@@ -75,13 +60,14 @@
     otherGifView = [[CAKeyframeAnimationGIFView alloc] initWithCAKeyframeAnimationWithPath:path];
     otherGifView.center = self.view.center;
     [self.view addSubview:otherGifView];
+    [otherGifView startGIF];
 }
 -(void)loadCADisplayLineImageView
 {
-    displayImageView = [[CADisplayLineImageView alloc] initWithFrame:CGRectMake(0, 0, 350*2, 393)];
+    displayImageView = [[CADisplayLineImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width,self.view.frame.size.height)];
     [displayImageView setCenter:self.view.center];
     [self.view addSubview:displayImageView];
-    [displayImageView setImage:[CADisplayLineImage imageNamed:@"1.gif"]];
+    [displayImageView setImage:[CADisplayLineImage imageNamed:@"2.gif"]];
     
 }
 @end

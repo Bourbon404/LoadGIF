@@ -10,10 +10,15 @@
 #import <ImageIO/ImageIO.h>
 @interface CAKeyframeAnimationGIFView ()
 {
+    //解析gif后每一张图片的显示时间
     NSMutableArray *timeArray;
+    //解析gif后的每一张图片数组
     NSMutableArray *imageArray;
+    //gif动画总时间
     CGFloat totalTime;
+    //gif宽度
     CGFloat width;
+    //gif高度
     CGFloat height;
 }
 @property (nonatomic,assign,readwrite) BOOL isAnimating;
@@ -29,7 +34,9 @@
 */
 void configImage(CFURLRef url,NSMutableArray *timeArray,NSMutableArray *imageArray,CGFloat *width,CGFloat *height,CGFloat *totalTime)
 {
+
     NSDictionary *gifProperty = [NSDictionary dictionaryWithObject:@{@0:(NSString *)kCGImagePropertyGIFLoopCount} forKey:(NSString *)kCGImagePropertyGIFDictionary];
+    //拿到ImageSourceRef后获取gif内部图片个数
     CGImageSourceRef ref = CGImageSourceCreateWithURL(url, (CFDictionaryRef)gifProperty);
     size_t count = CGImageSourceGetCount(ref);
     
@@ -39,10 +46,10 @@ void configImage(CFURLRef url,NSMutableArray *timeArray,NSMutableArray *imageArr
         CGImageRef imageRef = CGImageSourceCreateImageAtIndex(ref, i, (CFDictionaryRef)gifProperty);
         [imageArray addObject:CFBridgingRelease(imageRef)];
         
-        
+        //取每张图片的图片属性,是一个字典
         NSDictionary *dict = CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(ref, i, (CFDictionaryRef)gifProperty));
         
-        //取宽度
+        //取宽高
         if (width != NULL && height != NULL) {
             *width = [[dict valueForKey:(NSString *)kCGImagePropertyPixelWidth] floatValue];
             *height = [[dict valueForKey:(NSString *)kCGImagePropertyPixelHeight] floatValue];

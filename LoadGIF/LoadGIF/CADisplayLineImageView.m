@@ -9,7 +9,9 @@
 #import "CADisplayLineImageView.h"
 
 @interface CADisplayLineImageView ()
-
+{
+    int tmp;
+}
 @property (nonatomic) NSUInteger currentFrameIndex;
 @property (nonatomic,strong) CADisplayLineImage *animatedImage;
 @property (nonatomic,strong) CADisplayLink *displayLink;
@@ -39,6 +41,7 @@ const NSTimeInterval kMaxTimeStep = 1;
 }
 -(CADisplayLink *)displayLink
 {
+    //如果有superview就是已经创建了，创建时新建一个CADisplayLink，并制定方法，最后加到一个Runloop中，完成创建
     if (self.superview) {
         if (!_displayLink && self.animatedImage) {
             
@@ -56,6 +59,8 @@ const NSTimeInterval kMaxTimeStep = 1;
     return _runLoopMode ?: NSRunLoopCommonModes;
 }
 -(void)setRunLoopMode:(NSString *)runLoopMode{
+    //这个地方需要重写，因为CADisplayLink是依赖在runloop中的，所以如果设置了imageview的runloop的话
+    //就要停止动画，并重新设置CADisplayLink对应的runloop，最后在根据情况是否开始动画
     if (runLoopMode != _runLoopMode) {
         [self stopAnimating];
         NSRunLoop *runloop = [NSRunLoop mainRunLoop];
@@ -79,6 +84,7 @@ const NSTimeInterval kMaxTimeStep = 1;
     self.accumulator = 0;
     if ([image isKindOfClass:[CADisplayLineImage class]] && image.images) {
         
+        //设置静止态的图片
         if (image.images[0]) {
             [super setImage:image.images[0]];
         }else{
@@ -95,7 +101,7 @@ const NSTimeInterval kMaxTimeStep = 1;
     }
     [self.layer setNeedsDisplay];
 }
-
+//如果知道这个图就是gif，那可以直接调用这个方法
 -(void)setAnimatedImage:(CADisplayLineImage *)animatedImage
 {
     _animatedImage = animatedImage;
@@ -103,10 +109,12 @@ const NSTimeInterval kMaxTimeStep = 1;
         self.layer.contents = nil;
     }
 }
+//判断是否正在进行动画
 -(BOOL)isAnimating
 {
     return [super isAnimating] || (self.displayLink && !self.displayLink.isPaused);
 }
+//停止动画
 -(void)stopAnimating
 {
     //如果不是gif就返回父类方法
@@ -117,6 +125,7 @@ const NSTimeInterval kMaxTimeStep = 1;
     self.loopCountdown = 0;
     self.displayLink.paused = YES;
 }
+//开始动画
 -(void)startAnimating
 {
     if (!self.animatedImage) {
@@ -129,12 +138,13 @@ const NSTimeInterval kMaxTimeStep = 1;
     self.loopCountdown = self.animatedImage.loopCount ? :NSUIntegerMax;
     self.displayLink.paused = NO;
 }
-
+//切换动画的关键方法
 -(void)changeKeyframe:(CADisplayLink *)displayLink
 {
     if (self.currentFrameIndex >= self.animatedImage.images.count) {
         return;
     }
+    //这里就是不停的取图，不停的设置，然后不停的调用displayLayer:方法
     self.accumulator += fmin(displayLink.duration, kMaxTimeStep);
     while (self.accumulator >= self.animatedImage.frameDurations[self.currentFrameIndex]) {
         self.accumulator -= self.animatedImage.frameDurations[self.currentFrameIndex];
@@ -150,6 +160,7 @@ const NSTimeInterval kMaxTimeStep = 1;
         [self.layer setNeedsDisplay];
     }
 }
+//绘制图片
 -(void)displayLayer:(CALayer *)layer
 {
     if (!self.animatedImage || [self.animatedImage.images count] == 0) {
