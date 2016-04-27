@@ -67,7 +67,7 @@
     displayImageView = [[CADisplayLineImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width,self.view.frame.size.height)];
     [displayImageView setCenter:self.view.center];
     [self.view addSubview:displayImageView];
-    [displayImageView setImage:[CADisplayLineImage imageNamed:@"2.gif"]];
+    [displayImageView setImage:[CADisplayLineImage imageNamed:@"3.gif"]];
     
 }
 @end

@@ -9,28 +9,20 @@
 #import "CADisplayLineImage.h"
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+
 //获取当前ref的时间
 inline static NSTimeInterval CGImageSourceGetGifFrameDelay(CGImageSourceRef imageSource, NSUInteger index)
 {
     NSTimeInterval frameDuration = 0;
-    
     CFDictionaryRef theImageProperties;
-    
     if ((theImageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, index, NULL))) {
-        
-        CFDictionaryRef gifProgreties;
-        
-        if (CFDictionaryGetValueIfPresent(theImageProperties, kCGImagePropertyGIFDictionary, (const void **)&gifProgreties)) {
-            
+        CFDictionaryRef gifProperties;
+        if (CFDictionaryGetValueIfPresent(theImageProperties, kCGImagePropertyGIFDictionary, (const void **)&gifProperties)) {
             const void *frameDurationValue;
-            
-            if (CFDictionaryGetValueIfPresent(gifProgreties, kCGImagePropertyGIFUnclampedDelayTime, &frameDurationValue)) {
-                
+            if (CFDictionaryGetValueIfPresent(gifProperties, kCGImagePropertyGIFUnclampedDelayTime, &frameDurationValue)) {
                 frameDuration = [(__bridge NSNumber *)frameDurationValue doubleValue];
-                
                 if (frameDuration <= 0) {
-                    if (CFDictionaryGetValueIfPresent(gifProgreties, kCGImagePropertyGIFDelayTime, &frameDurationValue)) {
-                        
+                    if (CFDictionaryGetValueIfPresent(gifProperties, kCGImagePropertyGIFDelayTime, &frameDurationValue)) {
                         frameDuration = [(__bridge NSNumber *)frameDurationValue doubleValue];
                     }
                 }
@@ -38,6 +30,7 @@ inline static NSTimeInterval CGImageSourceGetGifFrameDelay(CGImageSourceRef imag
         }
         CFRelease(theImageProperties);
     }
+    
 #ifndef OLExactGIFRepresentation
     //Implement as Browsers do.
     //See:  http://nullsleep.tumblr.com/post/16524517190/animated-gif-minimum-frame-delay-browser-compatibility
@@ -60,17 +53,16 @@ inline static BOOL isRetinaFilePath(NSString *path)
     NSRange retinaSuffixRange = [[path lastPathComponent] rangeOfString:@"@2x" options:NSCaseInsensitiveSearch];
     return retinaSuffixRange.length && retinaSuffixRange.location != NSNotFound;
 }
-
 @interface CADisplayLineImage ()
 {
     CGImageSourceRef _imageSourceRef;
     CGFloat _scale;
     dispatch_queue_t readFrameQueue;
 }
-@property (nonatomic,readwrite) NSTimeInterval *frameDurations;
-@property (nonatomic,readwrite) NSUInteger loopCount;
-@property (nonatomic,readwrite) NSMutableArray *images;
-@property (nonatomic,readwrite) NSTimeInterval totalDuratoin;
+@property (nonatomic,readwrite) NSTimeInterval   *frameDurations;
+@property (nonatomic,readwrite) NSUInteger       loopCount;
+@property (nonatomic,readwrite) NSMutableArray   *images;
+@property (nonatomic,readwrite) NSTimeInterval   totalDuratoin;
 @property (nonatomic,readwrite) CGImageSourceRef incrementalSource;
 @end
 
@@ -80,35 +72,39 @@ static int _prefetchedNum = 10;
 @synthesize images;
 
 #pragma mark 重写UIImage的创建方法
--(instancetype)initWithContentsOfFile:(NSString *)path
+- (id)initWithContentsOfFile:(NSString *)path
 {
-    return [self initWithData:[NSData dataWithContentsOfFile:path] scale:isRetinaFilePath(path)?2.0f:1.0f];
+    return [self initWithData:[NSData dataWithContentsOfFile:path]
+                        scale:isRetinaFilePath(path) ? 2.0f : 1.0f];
 }
--(instancetype)initWithData:(NSData *)data
+
+- (id)initWithData:(NSData *)data
 {
     return [self initWithData:data scale:1.0f];
 }
--(instancetype)initWithData:(NSData *)data scale:(CGFloat)scale
+
+- (id)initWithData:(NSData *)data scale:(CGFloat)scale
 {
     if (!data) {
         return nil;
     }
     
-    CGImageSourceRef imageSource = CGImageSourceCreateWithData((CFDataRef)data, NULL);
-    
+    CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)(data), NULL);
+    //如果是gif图，就用这种方式创建
     if (CGImageSourceContainsAnimatedGif(imageSource)) {
-        //如果是gif图，就用这种方式创建
         self = [self initWithCGImageSource:imageSource scale:scale];
-    }else{
+    } else {
         if (scale == 1.0f) {
             self = [super initWithData:data];
-        }else{
+        } else {
             self = [super initWithData:data scale:scale];
         }
     }
+    
     if (imageSource) {
         CFRelease(imageSource);
     }
+    
     return self;
 }
 //创建gif图片
@@ -119,44 +115,47 @@ static int _prefetchedNum = 10;
         return nil;
     }
     CFRetain(imageSource);
-    size_t numberOfFrames = CGImageSourceGetCount(imageSource);
+    
+    NSUInteger numberOfFrames = CGImageSourceGetCount(imageSource);
     
     NSDictionary *imageProperties = CFBridgingRelease(CGImageSourceCopyProperties(imageSource, NULL));
-    NSDictionary *gifProerties = [imageProperties objectForKey:(NSString *)kCGImagePropertyGIFDictionary];
+    NSDictionary *gifProperties = [imageProperties objectForKey:(NSString *)kCGImagePropertyGIFDictionary];
     //开辟空间
-    self.frameDurations = malloc(numberOfFrames);
+    self.frameDurations = (NSTimeInterval *)malloc(numberOfFrames  * sizeof(NSTimeInterval));
     //读取循环次数
-    self.loopCount = [[gifProerties objectForKey:(NSString *)kCGImagePropertyGIFLoopCount] unsignedIntegerValue];
+    self.loopCount = [gifProperties[(NSString *)kCGImagePropertyGIFLoopCount] unsignedIntegerValue];
     //创建所有图片的数值
-    self.images  = [NSMutableArray arrayWithCapacity:numberOfFrames];
+    self.images = [NSMutableArray arrayWithCapacity:numberOfFrames];
     
     NSNull *aNull = [NSNull null];
-    for (NSUInteger i = 0; i < numberOfFrames; i++) {
-        [self.images addObject:aNull];
+    for (NSUInteger i = 0; i < numberOfFrames; ++i) {
         //读取每张土拍的显示时间,添加到数组中,并计算总时间
-        NSTimeInterval frameDuration = CGImageSourceGetGifFrameDelay(imageSource,i);
+        [self.images addObject:aNull];
+        NSTimeInterval frameDuration = CGImageSourceGetGifFrameDelay(imageSource, i);
         self.frameDurations[i] = frameDuration;
         self.totalDuratoin += frameDuration;
     }
-    
+    //CFTimeInterval start = CFAbsoluteTimeGetCurrent();
+    // Load first frame
     NSUInteger num = MIN(_prefetchedNum, numberOfFrames);
-    for (int i = 0; i < num; i++) {
+    for (int i=0; i<num; i++) {
         //替换读取到的每一张图片
         CGImageRef image = CGImageSourceCreateImageAtIndex(imageSource, i, NULL);
         [self.images replaceObjectAtIndex:i withObject:[UIImage imageWithCGImage:image scale:scale orientation:UIImageOrientationUp]];
-        CGImageRelease(image);
+        CFRelease(image);
     }
     //释放资源,创建子队列
     _imageSourceRef = imageSource;
     CFRetain(_imageSourceRef);
     CFRelease(imageSource);
+    //});
     
     _scale = scale;
-    
-    readFrameQueue = dispatch_queue_create("cn.bourbonz.www", DISPATCH_QUEUE_SERIAL);
+    readFrameQueue = dispatch_queue_create("com.bourbonz.www", DISPATCH_QUEUE_SERIAL);
     
     return self;
 }
+
 #pragma mark -Class Methods
 +(UIImage *)imageNamed:(NSString *)name
 {
@@ -230,6 +229,7 @@ static int _prefetchedNum = 10;
     }
     return frame;
 }
+
 -(CGSize)size
 {
     if (self.images.count) {
