@@ -62,10 +62,16 @@ inline static BOOL isRetinaFilePath(NSString *path)
 }
 
 @interface CADisplayLineImage ()
-@property (nonatomic) NSTimeInterval *frameDurations;
-@property (nonatomic) NSUInteger loopCount;
-@property (nonatomic) NSMutableArray *images;
-@property (nonatomic) NSTimeInterval totalDuratoin;
+{
+    CGImageSourceRef _imageSourceRef;
+    CGFloat _scale;
+    dispatch_queue_t readFrameQueue;
+}
+@property (nonatomic,readwrite) NSTimeInterval *frameDurations;
+@property (nonatomic,readwrite) NSUInteger loopCount;
+@property (nonatomic,readwrite) NSMutableArray *images;
+@property (nonatomic,readwrite) NSTimeInterval totalDuratoin;
+@property (nonatomic,readwrite) CGImageSourceRef incrementalSource;
 @end
 
 static int _prefetchedNum = 10;
@@ -134,6 +140,123 @@ static int _prefetchedNum = 10;
         [self.images replaceObjectAtIndex:i withObject:[UIImage imageWithCGImage:image scale:scale orientation:UIImageOrientationUp]];
         CGImageRelease(image);
     }
+    _imageSourceRef = imageSource;
+    CFRetain(_imageSourceRef);
+    CFRelease(imageSource);
     
+    _scale = scale;
+    
+    readFrameQueue = dispatch_queue_create("cn.bourbonz.www", DISPATCH_QUEUE_SERIAL);
+    
+    return self;
+}
+#pragma mark -Class Methods
++(UIImage *)imageNamed:(NSString *)name
+{
+    NSString *path = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:name];
+    return ([[NSFileManager defaultManager] fileExistsAtPath:path] ? [self imageWithContentsOfFile:path] :nil);
+}
++(UIImage *)imageWithContentsOfFile:(NSString *)path
+{
+    return [self imageWithData:[NSData dataWithContentsOfFile:path] scale:isRetinaFilePath(path) ? 2.0 : 1.0];
+}
++(UIImage *)imageWithData:(NSData *)data
+{
+    return [self imageWithData:data scale:1.0f];
+}
++(UIImage *)imageWithData:(NSData *)data scale:(CGFloat)scale
+{
+    if (!data) {
+        return nil;
+    }
+    CGImageSourceRef imageSource = CGImageSourceCreateWithData((CFDataRef)data, NULL);
+    UIImage *image;
+    if (CGImageSourceContainsAnimatedGif(imageSource)) {
+        image = [[self alloc] initWithCGImageSource:imageSource scale:scale];
+    }else{
+        image = [super imageWithData:data scale:scale];
+    }
+    if (imageSource) {
+        CFRelease(imageSource);
+    }
+    return image;
+}
+#pragma mark custom method
+-(UIImage *)getFrameWithIndex:(NSUInteger)idx
+{
+    UIImage *frame = nil;
+    @synchronized (self.images) {
+        frame = self.images[idx];
+    }
+    if (!frame) {
+        CGImageRef image = CGImageSourceCreateImageAtIndex(_imageSourceRef, idx, NULL);
+        frame = [UIImage imageWithCGImage:image scale:_scale orientation:UIImageOrientationUp];
+        CFRelease(image);
+    }
+    if (self.images.count > _prefetchedNum) {
+        if (idx != 0) {
+            [self.images replaceObjectAtIndex:idx withObject:[NSNull null]];
+        }
+        NSUInteger nextReadIdx = idx + _prefetchedNum;
+        
+        for (NSUInteger i = idx + 1; i <= nextReadIdx; i++) {
+            NSUInteger _idx = i%self.images.count;
+            if ([self.images[_idx] isKindOfClass:[NSNull class]]) {
+                
+                dispatch_async(readFrameQueue, ^{
+                   
+                    CGImageRef image = CGImageSourceCreateImageAtIndex(_imageSourceRef, _idx, NULL);
+                    @synchronized (self.images) {
+                        [self.images replaceObjectAtIndex:_idx withObject:[UIImage imageWithCGImage:image scale:_scale orientation:UIImageOrientationUp]];
+                    }
+                    CFRelease(image);
+                    
+                });
+            }
+        }
+    }
+    return frame;
+}
+-(CGSize)size
+{
+    if (self.images.count) {
+        return [[self.images objectAtIndex:0] size];
+    }
+    return [super size];
+}
+-(CGImageRef)CGImage
+{
+    if (self.images.count) {
+        return [[self.images objectAtIndex:0] CGImage];
+    }
+    return [super CGImage];
+}
+-(UIImageOrientation)imageOrientation
+{
+    if (self.images.count) {
+        return [[self.images objectAtIndex:0] imageOrientation];
+    }
+    return [super imageOrientation];
+}
+-(CGFloat)scale
+{
+    if (self.images.count) {
+        return [(UIImage *)[self.images objectAtIndex:0] scale];
+    }
+    return [super scale];
+}
+-(NSTimeInterval)duration
+{
+    return self.images ? self.totalDuratoin : [super duration];
+}
+-(void)dealloc
+{
+    if (_imageSourceRef) {
+        CFRelease(_imageSourceRef);
+    }
+    free(_frameDurations);
+    if (_incrementalSource) {
+        CFRelease(_incrementalSource);
+    }
 }
 @end

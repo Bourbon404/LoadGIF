@@ -10,4 +10,6 @@
 #import "CADisplayLineImage.h"
 @interface CADisplayLineImageView : UIImageView
 
+@property (nonatomic,copy) NSString *runLoopMode;
+
 @end

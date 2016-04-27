@@ -10,4 +10,10 @@
 
 @interface CADisplayLineImage : UIImage
 
+@property (nonatomic,readonly) NSTimeInterval *frameDurations;
+@property (nonatomic,readonly) NSUInteger loopCount;
+@property (nonatomic,readonly) NSTimeInterval totalDuratoin;
+
+-(UIImage *)getFrameWithIndex:(NSUInteger)idx;
+
 @end

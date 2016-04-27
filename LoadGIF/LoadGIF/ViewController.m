@@ -14,6 +14,7 @@
 {
     CGImageGIFView *gifView;
     CAKeyframeAnimationGIFView *otherGifView;
+    CADisplayLineImageView *displayImageView;
 }
 @end
 
@@ -23,7 +24,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    [self loadCAKeyframeAnimation];
+    [self loadCADisplayLineImageView];
 }
 -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
@@ -33,10 +34,15 @@
 //        [gifView startGIF];
 //    }
     
-    if (otherGifView.isAnimating) {
-        [otherGifView stopGIF];
+//    if (otherGifView.isAnimating) {
+//        [otherGifView stopGIF];
+//    }else{
+//        [otherGifView startGIF];
+//    }
+    if (displayImageView.isAnimating) {
+        [displayImageView stopAnimating];
     }else{
-        [otherGifView startGIF];
+        [displayImageView startAnimating];
     }
 }
 - (void)didReceiveMemoryWarning {
@@ -72,10 +78,10 @@
 }
 -(void)loadCADisplayLineImageView
 {
-    CADisplayLineImageView *imageView = [[CADisplayLineImageView alloc] initWithFrame:CGRectMake(0, 0, 350*2, 393)];
-    [imageView setCenter:self.view.center];
-    [self.view addSubview:imageView];
-    [imageView setImage:[CADisplayLineImage imageNamed:@"1.gif"]];
+    displayImageView = [[CADisplayLineImageView alloc] initWithFrame:CGRectMake(0, 0, 350*2, 393)];
+    [displayImageView setCenter:self.view.center];
+    [self.view addSubview:displayImageView];
+    [displayImageView setImage:[CADisplayLineImage imageNamed:@"1.gif"]];
     
 }
 @end
