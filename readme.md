@@ -1,6 +1,6 @@
 这里介绍下iOS中加载本地gif的几种方式，我们在最后再总结这几种方式的优缺点
 
-[欢迎访问我的博客查看更多](www.bourbonz.cn)
+欢迎访问我的博客查看更多 www.bourbonz.cn
 
 1.通过webview来进行展示
 
