@@ -22,7 +22,7 @@
 
 这种方式是先创建一个webview，然后通过加载data的方式展示出来
 
-![效果图](http://www.bourbonz.cn/wp-content/uploads/2016/04/webview.gif)
+![效果图](https://upload-images.jianshu.io/upload_images/1025705-5fa44f69b3ae1e2b.gif?imageMogr2/auto-orient/strip%7CimageView2/2/w/207)
 
 ***
 //画一个分隔线表示一下区分
@@ -113,7 +113,7 @@
 ```
 第二种方式的介绍也到此结束，主要就是先拿到图片详细详细信息，然后根据一个定时器，在进行切换，每张图片展示时间相同.
 
-![效果图](http://www.bourbonz.cn/wp-content/uploads/2016/04/CGImage.gif)
+![效果图](https://upload-images.jianshu.io/upload_images/1025705-baa284ea999ca8b1.gif?imageMogr2/auto-orient/strip%7CimageView2/2/w/207)
 
 3.上面的方法说到，每张图片的展示时间相同，原因也像上面那样是通过定时器来实现的，可现实中有的gif的图片每张的展示时间不一定是相同的，还有可能不同，下面的方法就可以实现这种需求.
 通过_CAKeyframeAnimation_来实现此操作
@@ -213,7 +213,7 @@ void configImage(CFURLRef url,NSMutableArray *timeArray,NSMutableArray *imageArr
 }
 ```
 
-![效果图](http://www.bourbonz.cn/wp-content/uploads/2016/04/CAKeyframeAnimation.gif)
+![效果图](https://upload-images.jianshu.io/upload_images/1025705-eb7da07e08f573ed.gif?imageMogr2/auto-orient/strip%7CimageView2/2/w/207)
 
 4.在尝试了上面的三种方式后，总觉得在性能上或多或少的有些缺陷，尤其是第三种，虽说可以自定义显示时间，但是总是感觉很卡顿，下面就说下最后一种方式，通过_CADisplayLink_来进行gif的动画展示，这个方式最推荐
 ***
@@ -328,7 +328,7 @@ void configImage(CFURLRef url,NSMutableArray *timeArray,NSMutableArray *imageArr
 }
 ```
 
-![效果图](http://www.bourbonz.cn/wp-content/uploads/2016/04/function.png)
+![效果图](https://upload-images.jianshu.io/upload_images/1025705-fe25b0d88664b6e0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/778)
 
 第三步，新建一个_UIImageView_的子类,来加载刚才新建的_UIImage_
 先看一些属性的设定，由于_CADisplayLink_是依赖在_runloop_的，所以需要将_imageview_的_runloop_属性进行重写
@@ -436,7 +436,7 @@ _setImage:_方法是需要重写的，这里完成的操作是设置静止态时
 ```
 这样就基本完成了设置，就可以显示了
 
-![效果图](http://www.bourbonz.cn/wp-content/uploads/2016/04/CADisplayLink.gif)
+![效果图](https://upload-images.jianshu.io/upload_images/1025705-0b873a25bb32b5fe.gif?imageMogr2/auto-orient/strip%7CimageView2/2/w/207)
 
 最后总结下这个方法的优缺点
 
